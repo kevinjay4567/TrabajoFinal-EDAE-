@@ -53,6 +53,10 @@ puestos <- (c(datos_E_14$nombrePuesto))
 split(datos_E_14,puestos)
 $
 
+puestos <- (c(datos_E_14$nombrePuesto))
+split(datos_E_14,puestos)
+$
+
 #| echo: false
 barrios <- read_sf("barrios/BarrioVereda_2014.shp")
 ```
