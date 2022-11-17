@@ -215,15 +215,15 @@ puesto6mitad_menores <- puesto6[puesto6$numeroMesa>round(nrow(puesto6)/2,0), ]
 Conf1x2 = matrix(c(1:2), nrow=1, byrow=TRUE)
 layout(Conf1x2,  widths=c(2, 2), heights=c(2, 2))
 
-votos <- c(sum(puesto6_mitad_mayores$votosRodolfo), sum(puesto6_mitad_mayores$votosPetro))
+votos <- c(sum(puesto6mitad_mayores$votosRodolfo), sum(puesto6mitad_mayores$votosPetro))
 label <- c("Votos por rodolfo", "Votos por Petro")
 pct <- round(votos/sum(votos)*100)
 etiquetas <- paste(pct,"%")
 pie(votos, labels = etiquetas, col = rainbow(length(etiquetas)))
 
 
-votos <- c(sum(puesto6_mitad_menores$votosRodolfo),
-           sum(puesto6_mitad_menores$votosPetro))
+votos <- c(sum(puesto6mitad_menores$votosRodolfo),
+           sum(puesto6mitad_menores$votosPetro))
 label <- c("Votos por rodolfo", "Votos por Petro")
 pct <- round(votos/sum(votos)*100)
 etiquetas <- paste(pct,"%")
