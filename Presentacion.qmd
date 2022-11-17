@@ -40,6 +40,12 @@ library(tidyverse)
 datos_E_14 <- read.csv("./datos/datos(E-14).csv", stringsAsFactors = TRUE)
 
 icfes <- read.csv("./datos/Saber_11__2020-2.csv", stringsAsFactors = TRUE)
+
+barrios <- read_sf("barrios/BarrioVereda_2014.shp")
+
+IEs <- read_sf("shp_Instituciones_Educativas/Instituciones_Educativas.shp")
+IEs <- IEs %>% 
+  filter(X_MAGNAMED != 0 & Y_MAGNAMED != 0)
 ```
 
 You can add options to executable code like this
@@ -83,8 +89,6 @@ pie(votos, labels = etiquetas, col = rainbow(length(etiquetas)))
 
 legend("topright", label, cex = 0.8,
        fill = rainbow(length(etiquetas)))
-#| echo: false
-barrios <- read_sf("barrios/BarrioVereda_2014.shp")
 ```
 
 ## Puesto SEC.ESC.RAFAEL URIBE URIBE
@@ -116,6 +120,7 @@ legend("topright", label, cex = 0.8,
        fill = rainbow(length(etiquetas)))
 
 ```
+
 ## Puesto de SEC. ESC. PEDRO DE CASTRO
 
 ```{r}
@@ -145,6 +150,7 @@ legend("topright", label, cex = 0.8,
        fill = rainbow(length(etiquetas)))
 
 ```
+
 ##Puesto de I.E.FRANCISCO ANTONIO ZEA
 
 ```{r}
@@ -175,6 +181,7 @@ legend("topright", label, cex = 0.8,
 ```
 
 ##Puesto de I.E. AMERICA
+
 ```{r}
 #Puesto de votación 5, con división entre mitades de las mesas
 puesto5 <- dfs$`I.E. AMERICA`
@@ -215,15 +222,15 @@ puesto6mitad_menores <- puesto6[puesto6$numeroMesa>round(nrow(puesto6)/2,0), ]
 Conf1x2 = matrix(c(1:2), nrow=1, byrow=TRUE)
 layout(Conf1x2,  widths=c(2, 2), heights=c(2, 2))
 
-votos <- c(sum(puesto6_mitad_mayores$votosRodolfo), sum(puesto6_mitad_mayores$votosPetro))
+votos <- c(sum(puesto6mitad_mayores$votosRodolfo), sum(puesto6mitad_mayores$votosPetro))
 label <- c("Votos por rodolfo", "Votos por Petro")
 pct <- round(votos/sum(votos)*100)
 etiquetas <- paste(pct,"%")
 pie(votos, labels = etiquetas, col = rainbow(length(etiquetas)))
 
 
-votos <- c(sum(puesto6_mitad_menores$votosRodolfo),
-           sum(puesto6_mitad_menores$votosPetro))
+votos <- c(sum(puesto6mitad_menores$votosRodolfo),
+           sum(puesto6mitad_menores$votosPetro))
 label <- c("Votos por rodolfo", "Votos por Petro")
 pct <- round(votos/sum(votos)*100)
 etiquetas <- paste(pct,"%")
@@ -235,6 +242,7 @@ legend("topright", label, cex = 0.8,
 ```
 
 ##Puesto de LICEO SALAZAR Y HERRERA
+
 ```{r}
 #Puesto de votación 7, con división entre mitades de las mesas
 puesto7 <- dfs$`LICEO SALAZAR Y HERRERA`
@@ -671,11 +679,6 @@ legend("topright", label, cex = 0.8,
        fill = rainbow(length(etiquetas)))
 ```
 
-
-```{r}
-plot(st_geometry(barrios))
-```
-
 ```{r}
 puestos_votacion <- read_excel("datos/medellin_coordenadas_original.xlsx")
 ```
@@ -686,8 +689,11 @@ puestos_votacion_sf <- st_as_sf(puestos_votacion,
                                 crs = 4326 )
 ```
 
+## Despliegue de mapas
+
 ```{r}
-plot(st_geometry(puestos_votacion_sf))
+ggplot(puestos_votacion_sf) +
+  geom_sf()
 ```
 
 ```{r}
@@ -695,11 +701,43 @@ ggplot(barrios) +
   geom_sf()
 ```
 
+## Integración de mapas
+
 ```{r}
-puestos_votacion_sf_barrio <- puestos_votacion_sf %>% 
-  st_join(barrios)
+ggplot(data = barrios) +
+  geom_sf() +
+  geom_sf(data = IEs, shape = 23, fill = "darkred")
 ```
 
 ```{r}
-head(puestos_votacion_sf_barrio)
+puestos_votacion_sf_barrio <- barrios %>% 
+  st_join(puestos_votacion_sf)
+```
+
+```{r}
+ggplot(data = puestos_votacion_sf_barrio, aes(fill = num_votos)) +
+  geom_sf() +
+  labs(title = "numero de votos por sector",
+       fill = "numero de votos")
+```
+
+## Union de los mapas
+
+```{r}
+summary(puestos_votacion_sf_barrio)
+```
+
+```{r}
+icfes$COLE_COD_DANE_ESTABLECIMIENTO <- as.character(icfes$COLE_COD_DANE_ESTABLECIMIENTO)
+```
+
+```{r}
+icfes_IEs <- merge(IEs, icfes, by.x = "DANE_SEDE", by.y = "COLE_COD_DANE_ESTABLECIMIENTO", all.x = TRUE)
+
+icfes_IEs <- icfes_IEs %>% 
+  filter(!is.na(FAMI_ESTRATOVIVIENDA) & FAMI_ESTRATOVIVIENDA != "")
+```
+
+```{r}
+summary(icfes)
 ```
