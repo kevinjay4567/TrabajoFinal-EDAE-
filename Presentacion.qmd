@@ -20,13 +20,9 @@ execute:
   message: false
 ---
 
-## Quarto
+## Base de datos
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Resumen de la base de datos E-14
 
 ```{r}
 
@@ -34,21 +30,61 @@ rm(list = ls())
 ```
 
 ```{r}
-# Lectura de la base de datos.
-datos_E_14 <- read.csv("./datos/datos(E-14).csv", stringsAsFactors = TRUE)
-
-head(datos_E_14)
+library(readxl)
+library(sf)
+library(tidyverse)
 ```
 
 ```{r}
-View(datos_E_14)
+# Lectura de la base de datos.
+datos_E_14 <- read.csv("./datos/datos(E-14).csv", stringsAsFactors = TRUE)
+
+icfes <- read.csv("./datos/Saber_11__2020-2.csv", stringsAsFactors = TRUE)
 ```
 
 You can add options to executable code like this
 
 ```{r}
+puestos <- (c(datos_E_14$nombrePuesto))
+split(datos_E_14,puestos)
+$
+
+puestos <- (c(datos_E_14$nombrePuesto))
+split(datos_E_14,puestos)
+$
+
 #| echo: false
-2 * 2
+barrios <- read_sf("barrios/BarrioVereda_2014.shp")
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+plot(st_geometry(barrios))
+```
+
+```{r}
+puestos_votacion <- read_excel("datos/medellin_coordenadas_original.xlsx")
+```
+
+```{r}
+puestos_votacion_sf <- st_as_sf(puestos_votacion,
+                                coords = c("longitud", "latitud"),
+                                crs = 4326 )
+```
+
+```{r}
+plot(st_geometry(puestos_votacion_sf))
+```
+
+```{r}
+ggplot(barrios) +
+  geom_sf()
+```
+
+```{r}
+puestos_votacion_sf_barrio <- puestos_votacion_sf %>% 
+  st_join(barrios)
+```
+
+```{r}
+head(puestos_votacion_sf_barrio)
+```
