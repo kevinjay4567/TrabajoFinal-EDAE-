@@ -33,6 +33,7 @@ rm(list = ls())
 library(readxl)
 library(sf)
 library(tidyverse)
+library(ggplot2)
 ```
 
 ```{r}
@@ -61,7 +62,42 @@ datos_E_14$nombrePuesto <-  factor(gsub("SEC. ESC. MONSEÑOR PPERDOMO", "SEC. ES
 #Corrección de un error de digitación en el puesto 12 correspondiente al nombre
 #SEC. ESC. PIO XII
 datos_E_14$nombrePuesto <-  factor(gsub("SEC. ESC. PPIO XII", "SEC. ESC. PIO XII", datos_E_14$nombrePuesto))
+```
 
+```{r}
+#Convirtiendo en factores los puestos de votacion
+zonas <- (c(datos_E_14$zona))
+#Separando la base de datos por puestos de votación
+base_zonas <- split(datos_E_14, f = list(zonas))
+zona24 <- base_zonas$`24`
+rodo <- sum(zona24$votosRodolfo)
+petro <- sum(zona24$votosPetro)
+comp24 <- c(rodo, petro)
+
+
+zona25 <- base_zonas$`25`
+rodo25 <- sum(zona25$votosRodolfo)
+petro25 <- sum(zona25$votosPetro)
+comp25 <- c(rodo25, petro25)
+
+zona26 <- base_zonas$`26`
+rodo26 <- sum(zona26$votosRodolfo)
+petro26 <- sum(zona26$votosPetro)
+comp26 <- c(rodo26, petro26)
+
+zonas <- c(24, 25, 26)
+votos_R <- c(rodo, rodo25, rodo26)
+votos_P <- c(petro, petro25, petro26)
+base_votos <- data.frame("Zona" = zonas, "VotosRodolfo" = votos_R, "VotosPetro" = votos_P)
+tabla <- table(base_votos)
+
+
+
+barplot(c(votos_R, votos_P), col=c(33,28), main = "Votación por zonas", legend.text=c("Rodolfo","Petro"))
+```
+
+
+```{r}
 #Convirtiendo en factores los puestos de votacion
 puestos <- (c(datos_E_14$nombrePuesto))
 #Separando la base de datos por puestos de votación
